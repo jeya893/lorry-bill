@@ -30,7 +30,7 @@
 </head>
 <body>
 
-<h1>CHITRAKALA LORRY SERVICE &  EARTH MOVERS</h1>
+<h1>CHITRAKALA LORRY SERVICE & EARTH MOVERS</h1>
 
 <div class="container">
 
@@ -88,27 +88,26 @@
     </div>
 </div>
 
-
-<!-- ============================= -->
-<!--        JAVASCRIPT PART       -->
-<!-- ============================= -->
-
 <script>
 
 // ADD TABLE ROW
 function addItem() {
-    let name = document.getElementById("name").value;
+    let name = document.getElementById("name").value.trim();
     let date = document.getElementById("date").value;
-    let city = document.getElementById("city").value;
-    let item = document.getElementById("item").value;
+    let city = document.getElementById("city").value.trim();
+    let item = document.getElementById("item").value.trim();
     let unit = document.getElementById("unit").value;
     let shift = document.getElementById("shift").value;
-    let amount = parseInt(document.getElementById("amount").value);
+    let amount = document.getElementById("amount").value;
 
-    if(!name || !date || !city || !item || !unit || !shift || !amount) {
+    if (!name || !date || !city || !item || !unit || !shift || amount === "") {
         alert("Please fill all fields!");
         return;
     }
+
+    amount = parseInt(amount);
+    unit = parseInt(unit);
+    shift = parseInt(shift);
 
     let table = document.querySelector("#billTable tbody");
 
@@ -125,26 +124,25 @@ function addItem() {
     let total = parseInt(document.getElementById("total").innerText);
     document.getElementById("total").innerText = total + amount;
 
+    // Save to localStorage
+    localStorage.setItem("billData", table.innerHTML);
+    localStorage.setItem("billTotal", document.getElementById("total").innerText);
     localStorage.setItem("customerName", name);
 
-    document.getElementById("date").value="";
-    document.getElementById("city").value="";
-    document.getElementById("item").value="";
-    document.getElementById("unit").value="";
-    document.getElementById("shift").value="";
-    document.getElementById("amount").value="";
+    // Clear fields
+    document.getElementById("date").value = "";
+    document.getElementById("city").value = "";
+    document.getElementById("item").value = "";
+    document.getElementById("unit").value = "";
+    document.getElementById("shift").value = "";
+    document.getElementById("amount").value = "";
 }
 
-
-
-
-
-// 2️⃣ SAVE PDF → TABLE ONLY
+// SAVE PDF → TABLE ONLY
 function printTableOnly() {
-
     const tableHTML = document.getElementById("billTable").outerHTML;
     const total = document.getElementById("total").innerText;
-    const name = document.getElementById("name").value;
+    const name = document.getElementById("name").value.trim();
 
     const win = window.open("", "_blank");
 
@@ -155,7 +153,7 @@ function printTableOnly() {
             <style>
                 table { width:100%; border-collapse: collapse; }
                 th, td { border:1px solid black; padding:8px; text-align:center; }
-                h2 { text-align:center; }
+                h2, h3 { text-align:center; }
             </style>
         </head>
         <body>
@@ -168,14 +166,11 @@ function printTableOnly() {
 
     win.document.close();
 
-    // Delay Fix
     setTimeout(() => {
         win.print();
         win.close();
     }, 500);
 }
-
-
 
 // LOAD LOCAL STORAGE
 window.onload = function() {
@@ -183,12 +178,10 @@ window.onload = function() {
     let savedTotal = localStorage.getItem("billTotal");
     let savedName = localStorage.getItem("customerName");
 
-    if(savedData) document.querySelector("#billTable tbody").innerHTML = savedData;
-    if(savedTotal) document.getElementById("total").innerText = savedTotal;
-    if(savedName) document.getElementById("name").value = savedName;
+    if (savedData) document.querySelector("#billTable tbody").innerHTML = savedData;
+    if (savedTotal) document.getElementById("total").innerText = savedTotal;
+    if (savedName) document.getElementById("name").value = savedName;
 };
-
-
 
 // CLEAR DATA
 function clearLocal() {
