@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<title>Bill Generator with Name</title>
+
+<style>
+    body { background: #f2f2f2; font-family: Arial; padding: 30px; }
+    h1{text-align: center;}
+    .container { width: 950px; background: white; padding: 20px; margin:auto; border:2px solid black; }
+    h2 { text-align: center; }
+    .form-box { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+    input { padding:8px; border:1px solid #333; border-radius:5px; }
+    button { background-color: black;color:white ; padding:10px 15px;border:none;
+             border-radius:5px; cursor:pointer; margin-top:10px; }
+    .pdf-btn { background: green; float:right; color:white; }
+    .save-btn { background: blue; color:white; }
+    .clear-btn { background:red; color:white; }
+    table { width:100%; border-collapse:collapse; font-size:15px; margin-top:15px; }
+    table, th, td { border:1px solid black; padding:8px; text-align:center; }
+    .total-box { margin-top:20px; font-size:20px; font-weight:bold; text-align:right; }
+
+    @media print { 
+        button { display:none; } 
+        body { background:white; } 
+        .container { border:none; } 
+    }
+</style>
+
+</head>
+<body>
+
+<h1>CHITRAKALA LORRY SERVICE &  EARTH MOVERS</h1>
+
+<div class="container">
+
+    <button class="pdf-btn" onclick="printTableOnly()">📄 Save PDF</button>
+
+    <button class="clear-btn" onclick="clearLocal()">🗑 Clear Data</button>
+
+    <h2>Bill Entry</h2>
+
+    <div class="form-box">
+        <label>Name:</label>
+        <input type="text" id="name" placeholder="Enter Customer Name">
+
+        <label>Date:</label>
+        <input type="date" id="date">
+
+        <label>City:</label>
+        <input type="text" id="city" placeholder="City">
+
+        <label>Item:</label>
+        <input type="text" id="item" placeholder="Item">
+
+        <label>Unit:</label>
+        <input type="number" id="unit" placeholder="Ex: 3 Loads">
+
+        <label>Shift:</label>
+        <input type="number" id="shift" placeholder="Shift">
+
+        <label>Amount (₹):</label>
+        <input type="number" id="amount" placeholder="Rupees">
+
+        <button onclick="addItem()" style="width:100%; padding:20px; font-size:16px; grid-column: span 2;">
+            Add Row
+        </button>
+    </div>
+
+    <h2>Bill Table</h2>
+
+    <table id="billTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>City</th>
+                <th>Item</th>
+                <th>Unit</th>
+                <th>Shift</th>
+                <th>Rupees</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="total-box">
+        Total: <span id="total">0</span> ரூ
+    </div>
+</div>
+
+
+<!-- ============================= -->
+<!--        JAVASCRIPT PART       -->
+<!-- ============================= -->
+
+<script>
+
+// ADD TABLE ROW
+function addItem() {
+    let name = document.getElementById("name").value;
+    let date = document.getElementById("date").value;
+    let city = document.getElementById("city").value;
+    let item = document.getElementById("item").value;
+    let unit = document.getElementById("unit").value;
+    let shift = document.getElementById("shift").value;
+    let amount = parseInt(document.getElementById("amount").value);
+
+    if(!name || !date || !city || !item || !unit || !shift || !amount) {
+        alert("Please fill all fields!");
+        return;
+    }
+
+    let table = document.querySelector("#billTable tbody");
+
+    table.innerHTML += `
+        <tr>
+            <td>${date}</td>
+            <td>${city}</td>
+            <td>${item}</td>
+            <td>${unit}</td>
+            <td>${shift}</td>
+            <td>${amount}</td>
+        </tr>`;
+
+    let total = parseInt(document.getElementById("total").innerText);
+    document.getElementById("total").innerText = total + amount;
+
+    localStorage.setItem("customerName", name);
+
+    document.getElementById("date").value="";
+    document.getElementById("city").value="";
+    document.getElementById("item").value="";
+    document.getElementById("unit").value="";
+    document.getElementById("shift").value="";
+    document.getElementById("amount").value="";
+}
+
+
+
+
+
+// 2️⃣ SAVE PDF → TABLE ONLY
+function printTableOnly() {
+
+    const tableHTML = document.getElementById("billTable").outerHTML;
+    const total = document.getElementById("total").innerText;
+    const name = document.getElementById("name").value;
+
+    const win = window.open("", "_blank");
+
+    win.document.write(`
+        <html>
+        <head>
+            <title>Table PDF</title>
+            <style>
+                table { width:100%; border-collapse: collapse; }
+                th, td { border:1px solid black; padding:8px; text-align:center; }
+                h2 { text-align:center; }
+            </style>
+        </head>
+        <body>
+            <h2>${name} - Bill Table</h2>
+            ${tableHTML}
+            <h3>Total: ${total} ரூ</h3>
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+
+    // Delay Fix
+    setTimeout(() => {
+        win.print();
+        win.close();
+    }, 500);
+}
+
+
+
+// LOAD LOCAL STORAGE
+window.onload = function() {
+    let savedData = localStorage.getItem("billData");
+    let savedTotal = localStorage.getItem("billTotal");
+    let savedName = localStorage.getItem("customerName");
+
+    if(savedData) document.querySelector("#billTable tbody").innerHTML = savedData;
+    if(savedTotal) document.getElementById("total").innerText = savedTotal;
+    if(savedName) document.getElementById("name").value = savedName;
+};
+
+
+
+// CLEAR DATA
+function clearLocal() {
+    localStorage.clear();
+    location.reload();
+}
+
+</script>
+
+</body>
+</html>
